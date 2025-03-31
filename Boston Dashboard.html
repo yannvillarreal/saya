@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>City of Boston Employee Compensation Dashboard</title>
+  <style>
+    /* Global styling */
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --accent-color: #e74c3c;
+      --text-light: #ecf0f1;
+      --text-dark: #2c3e50;
+      --border-color: #bdc3c7;
+      --background-light: #f8f9fa;
+      --background-dark: #2c3e50;
+    }
+
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: var(--background-light);
+    }
+
+    /* Top banner styling */
+    #banner {
+      background: var(--background-dark);
+      color: var(--text-light);
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: 500;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Container for panels */
+    #container {
+      display: flex;
+      height: calc(100vh - 54px);
+      background: white;
+    }
+
+    /* Left Panel styling */
+    #left {
+      width: 50%;
+      position: relative;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      background: white;
+    }
+
+    /* Left banner styling */
+    #left-banner {
+      height: 84px;
+      background: var(--background-light);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+
+    #left-banner .left-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    #left-banner .left-info div:first-child {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-dark);
+      line-height: 1.2;
+    }
+
+    #left-banner .left-info div:last-child {
+      font-size: 13px;
+      color: var(--secondary-color);
+      margin-top: 2px;
+    }
+
+    #left-banner .gradient-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      font-size: 13px;
+      color: var(--secondary-color);
+    }
+
+    #gradient-info-labels {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    #gradient-label {
+      display: inline-block;
+      width: 120px;
+      height: 15px;
+      margin: 0;
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+    }
+
+    /* Treemap SVG styling */
+    #treemap-svg {
+      width: 100%;
+      height: calc(100% - 84px);
+      background: white;
+    }
+
+    /* Tooltip styling */
+    .tooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(44, 62, 80, 0.9);
+      color: var(--text-light);
+      padding: 10px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      z-index: 30;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: opacity 0.2s;
+    }
+
+    /* Right Panel styling */
+    #right {
+      width: 50%;
+      position: relative;
+      background: white;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #right-header {
+      height: 84px;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--background-light);
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      box-sizing: border-box;
+      flex-shrink: 0;
+    }
+
+    #violin-container {
+      flex-grow: 1;
+      overflow-y: auto;
+      position: relative;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+
+    #violin-svg {
+      width: 100%;
+      height: auto;
+      min-height: 100%;
+      background: white;
+    }
+
+    #right-header h2 {
+      margin: 0 0 8px;
+      color: var(--text-dark);
+      font-size: 20px;
+      font-weight: 500;
+      line-height: 1.2;
+    }
+
+    #right-header div.info {
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--secondary-color);
+      margin-top: 4px;
+    }
+
+    #right-header div.info span {
+      background: white;
+      padding: 3px 10px;
+      border-radius: 3px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Department rectangles styling */
+    .dept-rect {
+      transition: stroke 0.2s;
+    }
+
+    .dept-rect:hover {
+      cursor: pointer;
+    }
+
+    @keyframes blinkingBorder {
+      0% { stroke: #ff6b6b; stroke-width: 3px; }
+      50% { stroke: #339af0; stroke-width: 2px; }
+      100% { stroke: #ff6b6b; stroke-width: 3px; }
+    }
+
+    .dept-rect-highlight {
+      animation: blinkingBorder 1.5s infinite;
+    }
+
+    .dept-label {
+      font-size: 11px;
+      font-weight: 500;
+      fill: var(--text-dark);
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+
+    /* Violin plot styling */
+    .violin-path {
+      transition: opacity 0.2s;
+    }
+
+    .violin-path:hover {
+      opacity: 0.8;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--background-light);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--secondary-color);
+    }
+
+    #violin-title {
+      font-size: 13px !important;
+      color: var(--secondary-color);
+      margin-top: 3px !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top dashboard banner -->
+  <div id="banner">City of Boston Employee Compensation Dashboard</div>
+  <div id="container">
+    <!-- Left Panel: Treemap -->
+    <div id="left">
+      <!-- Left panel banner -->
+      <div id="left-banner">
+        <div class="left-info">
+          <div>Distribution of employee compensation by department</div>
+          <div id="city-total"></div>
+        </div>
+        <div class="gradient-info">
+          <div>Avg. compensation</div>
+          <div id="gradient-info-labels">
+            <span>Q1</span>
+            <div id="gradient-label"></div>
+            <span>Q4</span>
+          </div>
+        </div>
+      </div>
+      <svg id="treemap-svg"></svg>
+      <div class="tooltip" id="tooltip" style="opacity: 0;"></div>
+    </div>
+    <!-- Right Panel: Violin Plot -->
+    <div id="right">
+      <div id="right-header">
+        <h2 id="dept-name">Select a department</h2>
+        <div class="info">
+          <span id="agg-comp"></span>
+          <span id="avg-comp"></span>
+          <span id="emp-count"></span>
+        </div>
+      </div>
+      <div id="violin-container">
+        <svg id="violin-svg"></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include D3.js and the external data file -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://wattenberg.github.io/data/employee-comp-2024.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Parse CSV data stored in the variable bostonPayroll2024.
+      const data = d3.csvParse(bostonPayroll2024);
+      data.forEach(d => {
+        d["TOTAL GROSS"] = +d["TOTAL GROSS"].replace(/,/g, "");
+      });
+
+      // Compute overall total compensation for the city.
+      const totalCityComp = d3.sum(data, d => d["TOTAL GROSS"]);
+      // Update the left banner with city total (formatted in millions).
+      d3.select("#city-total").text("Total City Compensation: $" + Math.round(totalCityComp / 1e6) + "M");
+
+      // Aggregate data by department.
+      const departments = d3.rollups(
+        data,
+        v => ({
+          totalComp: d3.sum(v, d => d["TOTAL GROSS"]),
+          count: v.length,
+          employees: v
+        }),
+        d => d["DEPARTMENT_NAME"]
+      ).map(([dept, values]) => ({
+          department: dept,
+          totalComp: values.totalComp,
+          count: values.count,
+          employees: values.employees
+      }));
+
+      // Compute quartiles for compensation
+      const compValues = departments.map(d => d.totalComp / d.count);
+      const q1 = d3.quantile(compValues.sort(d3.ascending), 0.25);
+      const q2 = d3.quantile(compValues.sort(d3.ascending), 0.5);
+      const q3 = d3.quantile(compValues.sort(d3.ascending), 0.75);
+
+      // Create color scale based on quartiles
+      const colorScale = d3.scaleThreshold()
+        .domain([q1, q2, q3])
+        .range(['#edf3f7', '#c3d5e3', '#7596b3', '#2c5783']);  // Light muted blue to Boston dark blue
+
+      // Update the gradient label to show discrete colors instead of gradient
+      const gradientLabel = d3.select("#gradient-label");
+      gradientLabel
+        .style("background", "none")
+        .style("display", "flex")
+        .style("justify-content", "space-between");
+
+      // Remove any existing color blocks
+      gradientLabel.selectAll("*").remove();
+
+      // Add four color blocks
+      const colors = ['#edf3f7', '#c3d5e3', '#7596b3', '#2c5783'];
+      colors.forEach(color => {
+        gradientLabel.append("div")
+          .style("width", "25%")
+          .style("height", "100%")
+          .style("background-color", color);
+      });
+
+      // Create a dummy root for the treemap layout.
+      const root = d3.hierarchy({children: departments})
+                     .sum(d => d.totalComp)
+                     .sort((a, b) => b.data.totalComp - a.data.totalComp);
+
+      const leftSVG = d3.select("#treemap-svg");
+      const leftWidth = leftSVG.node().clientWidth;
+      const leftHeight = leftSVG.node().clientHeight;
+
+      // Compute the treemap layout with padding
+      d3.treemap()
+        .size([leftWidth, leftHeight])
+        .padding(3)
+        .tile(d3.treemapSquarify)
+        (root);
+
+      // Draw treemap nodes with transitions
+      const nodes = leftSVG.selectAll("g")
+        .data(root.leaves())
+        .enter()
+        .append("g")
+        .attr("transform", d => "translate(" + d.x0 + "," + d.y0 + ")");
+
+      nodes.style("opacity", 0)
+        .transition()
+        .duration(500)
+        .style("opacity", 1);
+
+      // Draw rectangle for each department with improved styling
+      const rects = nodes.append("rect")
+        .attr("class", "dept-rect")
+        .attr("width", d => d.x1 - d.x0)
+        .attr("height", d => d.y1 - d.y0)
+        .attr("fill", d => colorScale(d.data.totalComp / d.data.count))
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1)
+        .style("cursor", "pointer");
+
+      // Add event listeners to rectangles
+      rects.on("mouseover", function(event, d) {
+          // Add blinking border effect
+          d3.select(this)
+            .classed("dept-rect-highlight", true);
+          
+          // Show tooltip with department details
+          const avgDeptComp = d.data.totalComp / d.data.count;
+          const tooltip = d3.select("#tooltip");
+          tooltip.style("opacity", 1)
+                 .html(`<strong>${d.data.department}</strong><br/>
+                        Total Comp: $${d.data.totalComp.toLocaleString(undefined, {maximumFractionDigits: 2})}<br/>
+                        Employees: ${d.data.count}<br/>
+                        Avg Comp: $${avgDeptComp.toLocaleString(undefined, {maximumFractionDigits: 2})}`)
+                 .style("left", (event.pageX + 15) + "px")
+                 .style("top", (event.pageY + 15) + "px");
+        })
+        .on("mousemove", function(event, d) {
+          const tooltip = d3.select("#tooltip");
+          tooltip.style("left", (event.pageX + 15) + "px")
+                 .style("top", (event.pageY + 15) + "px");
+        })
+        .on("mouseout", function() {
+          // Remove blinking border effect
+          d3.select(this)
+            .classed("dept-rect-highlight", false);
+          
+          d3.select("#tooltip")
+            .style("opacity", 0);
+        })
+        .on("click", function(event, d) {
+          updateRightPanel(d.data);
+        });
+
+      // Function to update right panel with improved styling
+      function updateRightPanel(dept) {
+        // Update header information with transitions
+        d3.select("#dept-name")
+          .transition()
+          .duration(300)
+          .text(dept.department);
+        
+        d3.select("#agg-comp")
+          .transition()
+          .duration(300)
+          .text("Total Compensation: $" + dept.totalComp.toLocaleString(undefined, {maximumFractionDigits: 2}));
+        
+        d3.select("#emp-count")
+          .transition()
+          .duration(300)
+          .text("Employees: " + dept.count);
+        
+        d3.select("#avg-comp")
+          .transition()
+          .duration(300)
+          .text("Average Compensation: $" + (dept.totalComp / dept.count).toLocaleString(undefined, {maximumFractionDigits: 2}));
+
+        // Group the department's employees by job title
+        const jobGroups = d3.group(dept.employees, d => d.TITLE);
+        let jobData = Array.from(jobGroups, ([job, records]) => ({
+          job: job,
+          totalComp: d3.sum(records, d => d["TOTAL GROSS"]),
+          values: records.map(d => d["TOTAL GROSS"])
+        }));
+
+        // Sort job titles by total compensation and take top 10
+        jobData.sort((a, b) => b.totalComp - a.totalComp);
+        jobData = jobData.slice(0, 10);
+
+        // Clear previous plot
+        d3.select("#violin-svg").selectAll("*").remove();
+
+        const svg = d3.select("#violin-svg");
+        const width = svg.node().clientWidth - 40; // Account for padding
+        const height = 500; // Reduced height from 600 to 500
+        svg.attr("height", height);
+
+        const marginPlot = {top: 70, right: 150, bottom: 50, left: 300};  // Increased right margin for legend
+        const plotWidth = width - marginPlot.left - marginPlot.right;
+        const plotHeight = height - marginPlot.top - marginPlot.bottom;
+
+        // Create plot group
+        const g = svg.append("g")
+                     .attr("transform", "translate(" + (marginPlot.left + 20) + "," + (marginPlot.top + 20) + ")");
+
+        // Add title to the plot
+        g.append("text")
+         .attr("x", plotWidth / 2)
+         .attr("y", -55)
+         .attr("text-anchor", "middle")
+         .style("font-size", "14px")
+         .style("font-weight", "500")
+         .text("Distribution of Employee Compensation by Job Title (Top 10)");
+
+        // Add legend for statistical markers
+        const legend = g.append("g")
+                       .attr("transform", "translate(" + (plotWidth + 30) + "," + (plotHeight / 2 - 40) + ")");
+
+        // Add legend title
+        legend.append("text")
+              .attr("x", 0)
+              .attr("y", -20)
+              .style("font-size", "12px")
+              .style("font-weight", "500")
+              .text("Statistical Markers");
+
+        // Add median line example
+        legend.append("line")
+              .attr("x1", 0)
+              .attr("x2", 20)
+              .attr("y1", 0)
+              .attr("y2", 0)
+              .attr("stroke", "#000")
+              .attr("stroke-width", 2);
+
+        legend.append("text")
+              .attr("x", 30)
+              .attr("y", 4)
+              .style("font-size", "11px")
+              .text("Median");
+
+        // Add mean point example
+        legend.append("circle")
+              .attr("cx", 10)
+              .attr("cy", 25)
+              .attr("r", 3)
+              .attr("fill", "#000");
+
+        legend.append("text")
+              .attr("x", 30)
+              .attr("y", 29)
+              .style("font-size", "11px")
+              .text("Mean");
+
+        // Add distribution explanation
+        legend.append("text")
+              .attr("x", 0)
+              .attr("y", 54)
+              .style("font-size", "11px")
+              .style("font-style", "italic")
+              .text("Width indicates");
+
+        legend.append("text")
+              .attr("x", 0)
+              .attr("y", 69)
+              .style("font-size", "11px")
+              .style("font-style", "italic")
+              .text("frequency at");
+
+        legend.append("text")
+              .attr("x", 0)
+              .attr("y", 84)
+              .style("font-size", "11px")
+              .style("font-style", "italic")
+              .text("that salary level");
+
+        // Create scales
+        const yScale = d3.scaleBand()
+                        .domain(jobData.map(d => d.job))
+                        .range([0, plotHeight])
+                        .padding(0.3);
+
+        const xScale = d3.scaleLinear()
+                        .domain([0, d3.max(jobData.flatMap(d => d.values))])
+                        .range([0, plotWidth])
+                        .nice();
+
+        // Add axes with improved styling
+        const xAxis = d3.axisBottom(xScale)
+                       .ticks(5)
+                       .tickFormat(d => "$" + (d / 1e3).toFixed(0) + "K");
+        
+        g.append("g")
+         .attr("transform", "translate(0," + plotHeight + ")")
+         .call(xAxis)
+         .selectAll("text")
+         .style("font-size", "12px")
+         .attr("transform", "rotate(-45)")
+         .style("text-anchor", "end");
+
+        const yAxis = d3.axisLeft(yScale);
+        g.append("g")
+         .call(yAxis)
+         .selectAll("text")
+         .style("font-size", "12px");
+
+        // Create kernel density estimator function with adjusted bandwidth
+        function kernelDensityEstimator(kernel, X) {
+          return function(V) {
+            return X.map(x => ({
+              x: x,
+              y: d3.mean(V, v => kernel(x - v))
+            }));
+          };
+        }
+
+        function kernelEpanechnikov(bandwidth) {
+          return x => Math.abs(x /= bandwidth) <= 1 ? 0.75 * (1 - x * x) / bandwidth : 0;
+        }
+
+        // Create violin plots for each job
+        jobData.forEach(function(d) {
+          const bandwidth = d3.deviation(d.values) * 0.2; // Adjust bandwidth based on data spread
+          const kde = kernelDensityEstimator(kernelEpanechnikov(bandwidth), xScale.ticks(50));
+          const violinData = kde(d.values);
+          const maxDensity = d3.max(violinData, d => d.y);
+
+          // Scale the violin width based on the density
+          const yBandwidth = yScale.bandwidth();
+          const violinWidth = yBandwidth * 0.8; // 80% of the band width
+
+          // Create path generator for violin shape
+          const area = d3.area()
+            .x(d => xScale(d.x))
+            .y0(d => -(d.y / maxDensity) * (violinWidth / 2))
+            .y1(d => (d.y / maxDensity) * (violinWidth / 2))
+            .curve(d3.curveCatmullRom);
+
+          // Draw violin shape
+          g.append("path")
+            .datum(violinData)
+            .attr("class", "violin-path")
+            .attr("d", area)
+            .attr("transform", 
+              "translate(0," + (yScale(d.job) + yScale.bandwidth() / 2) + ")")
+            .style("fill", colorScale(d.totalComp / d.values.length))
+            .style("opacity", 0.7)
+            .attr("stroke", "#666")
+            .attr("stroke-width", 1);
+
+          // Add median line
+          const median = d3.median(d.values);
+          g.append("line")
+            .attr("x1", xScale(median))
+            .attr("x2", xScale(median))
+            .attr("y1", yScale(d.job) + yScale.bandwidth() * 0.25)
+            .attr("y2", yScale(d.job) + yScale.bandwidth() * 0.75)
+            .attr("stroke", "#000")
+            .attr("stroke-width", 2)
+            .attr("opacity", 0.8);
+
+          // Add mean point
+          const mean = d3.mean(d.values);
+          g.append("circle")
+            .attr("cx", xScale(mean))
+            .attr("cy", yScale(d.job) + yScale.bandwidth() / 2)
+            .attr("r", 3)
+            .attr("fill", "#000")
+            .attr("opacity", 0.8);
+        });
+
+        // Add x-axis label
+        g.append("text")
+          .attr("x", plotWidth / 2)
+          .attr("y", plotHeight + marginPlot.bottom - 5)
+          .attr("text-anchor", "middle")
+          .style("font-size", "12px")
+          .text("Employee Compensation");
+      }
+    });
+  </script>
+</body>
+</html>

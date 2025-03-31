@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es-MX">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda | Barras de Proteína de Tofu</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Announcement Bar -->
+    <div class="announcement-bar">
+        <p>Envío Gratis en Pedidos Mayores a $50 + 2 Muestras Gratis</p>
+    </div>
+
+    <!-- Header Section -->
+    <header>
+        <nav class="main-nav">
+            <div class="nav-left">
+                <div class="logo">
+                    <h1>Barras de Tofu</h1>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Inicio</a>
+                    <a href="shop.html" class="active">Tienda</a>
+                    <a href="index.html#about">Nosotros</a>
+                    <a href="index.html#testimonials">Testimonios</a>
+                    <a href="index.html#contact">Contacto</a>
+                </div>
+            </div>
+            <div class="nav-right">
+                <a href="#cart" class="cart-icon"><i class="fas fa-shopping-cart"></i> <span class="cart-count">0</span></a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Shop Section -->
+    <section class="shop-section">
+        <div class="container">
+            <h2>Nuestros Productos</h2>
+            <div class="products-grid">
+                <!-- Product 1 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/product1.jpg" alt="Barra de Tofu Clásica">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-info-top">
+                            <div class="product-brand">Barras de Tofu</div>
+                            <h3 class="product-name">Barra de Tofu Clásica</h3>
+                            <p class="product-description">Nuestra barra de proteína de tofu más popular, perfecta para cualquier momento del día.</p>
+                            <div class="product-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="review-count">(1069 reseñas)</span>
+                            </div>
+                        </div>
+                        <div class="product-info-bottom">
+                            <div class="product-price">
+                                <span class="current-price">$625.00</span>
+                            </div>
+                            <button class="add-to-cart">Agregar al carrito</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/product2.jpg" alt="Barra de Tofu Chocolate">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-info-top">
+                            <div class="product-brand">Barras de Tofu</div>
+                            <h3 class="product-name">Barra de Tofu Chocolate</h3>
+                            <p class="product-description">Deliciosa barra de proteína con sabor a chocolate, perfecta para los amantes del cacao.</p>
+                            <div class="product-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="review-count">(665 reseñas)</span>
+                            </div>
+                        </div>
+                        <div class="product-info-bottom">
+                            <div class="product-price">
+                                <span class="current-price">$625.00</span>
+                            </div>
+                            <button class="add-to-cart">Agregar al carrito</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="images/product3.jpg" alt="Barra de Tofu Matcha">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-info-top">
+                            <div class="product-brand">Barras de Tofu</div>
+                            <h3 class="product-name">Barra de Tofu Matcha</h3>
+                            <p class="product-description">Una combinación única de proteína de tofu y matcha, perfecta para los amantes del té verde.</p>
+                            <div class="product-rating">
+                                <div class="stars">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <span class="review-count">(235 reseñas)</span>
+                            </div>
+                        </div>
+                        <div class="product-info-bottom">
+                            <div class="product-price">
+                                <span class="current-price">$679.00</span>
+                            </div>
+                            <button class="add-to-cart">Agregar al carrito</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="cart-modal">
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>Tu Carrito</h2>
+                <button class="close-cart">&times;</button>
+            </div>
+            <div class="cart-items"></div>
+            <div class="cart-total">
+                <p>Total: $<span id="cart-total-amount">0.00</span></p>
+                <button class="checkout-button">Proceder al pago</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
